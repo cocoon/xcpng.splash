@@ -12,6 +12,8 @@ namespace splash_xcp_ng
         private System.IO.Stream stream;
         private System.Reflection.Assembly assembly;
         const string exe = "XenCenterMain.exe";
+        Version AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        string ProductVersion = System.Windows.Forms.Application.ProductVersion; 
 
         private BackgroundWorker bworker = new BackgroundWorker();
         private ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -31,6 +33,8 @@ namespace splash_xcp_ng
 
         private void Style()
         {
+            labelVersion.Text = ProductVersion + " (" + AssemblyVersion + ")";
+
             Image bitmap;
             assembly = System.Reflection.Assembly.LoadFrom(Application.ExecutablePath);
             stream = assembly.GetManifestResourceStream("splash_xcp_ng.Resources.splash.bmp");
@@ -72,8 +76,6 @@ namespace splash_xcp_ng
                 System.Threading.Thread.Sleep(100);
                 if(proc != null) proc.Refresh();
             }
-
-            //MessageBox.Show(proc.MainWindowTitle);
 
             Exit();
 
