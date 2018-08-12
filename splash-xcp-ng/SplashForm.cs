@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,6 +13,9 @@ namespace splash_xcp_ng
         private System.IO.Stream stream;
         private System.Reflection.Assembly assembly;
         const string exe = "XenCenterMain.exe";
+        private string exeFullPath = string.Empty;
+        private string appdir = string.Empty;
+
         Version AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
         string ProductVersion = System.Windows.Forms.Application.ProductVersion; 
 
@@ -51,19 +55,43 @@ namespace splash_xcp_ng
 
         private void Launch()
         {
-            if (!File.Exists(exe))
+            appdir = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+            exeFullPath = Path.Combine(appdir, exe);
+
+            if (!File.Exists(exeFullPath))
             {
-                MessageBox.Show("[ERROR] Application not found: " + exe);
+                MessageBox.Show("[ERROR] Application not found: " + Environment.NewLine + exeFullPath);
                 Exit();
                 return;
             }
 
+            #region Arguments
+
+            // test for agruments: "XCP-ng Center.exe" messageboxtest
+
+            string arguments = String.Empty;
+            string[] args = Environment.GetCommandLineArgs();
+
+            if (args != null && args.Length > 0)
+            {
+                //remove first argument that always is the current 
+                List<string> temp = new List<string>(args);
+                temp.RemoveAt(0);
+                string[] argsonly = temp.ToArray();
+
+                arguments = string.Join(" ", argsonly);
+            }
+
+            #endregion
 
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;
-            startInfo.FileName = exe;
+            startInfo.FileName = exeFullPath;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Arguments = String.Empty;
+            startInfo.Arguments = arguments;
+            startInfo.WorkingDirectory = appdir;
+
+
 
             bworker.WorkerSupportsCancellation = true;
             bworker.DoWork += new DoWorkEventHandler(Start);
